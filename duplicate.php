@@ -15,4 +15,25 @@ function fetchAllFiles($dir, &$results = []){
     return $results;
 }
 
-print_r(fetchAllFiles('./DropsuiteTest'));
+function showDuplicate(){
+    $filepaths = fetchAllFiles("./DropsuiteTest");
+    $ignore = ['.DS_Store'];
+    $files = [];
+
+    // wrap the details of files
+    foreach($filepaths as $filepath){
+        if(filesize($filepath) == 0 || in_array(basename($filepath), $ignore)){
+            continue;
+        }
+
+        $files[] = [
+            "size" => filesize($filepath),
+            "name" => basename($filepath),
+            "path" => $filepath,
+        ];
+    }
+
+    return $files;
+}
+
+print_r(showDuplicate());

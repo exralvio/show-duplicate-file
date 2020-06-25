@@ -55,7 +55,31 @@ function showDuplicate(){
         }
     }
 
-    return $duplicated_by_content;
+    // sort by highest count
+    usort($duplicated_by_content, function($a, $b){
+        return count($b) <=> count($a);
+    });
+
+    $result = "No duplicated files.";
+
+    // make sure the array of file is exist
+    if(isset($duplicated_by_content[0][0])){ 
+        // count the duplicated content
+        $group = $duplicated_by_content[0];
+        $count = count($group);
+
+        // get the file content
+        $file = $group[0];
+        $content = file_get_contents($file['path']);
+
+        // string limit for content result
+        $content = strlen($content) > 50 ? substr($content,0,50)."..." : $content;
+
+        // concat the result
+        $result =  $content.' '.$count;
+    }
+
+    return $result;
 }
 
-print_r(showDuplicate());
+echo showDuplicate();

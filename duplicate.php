@@ -16,6 +16,8 @@ function fetchAllFiles($dir, &$results = []){
 }
 
 function showDuplicate(){
+    set_time_limit(0);
+    
     $filepaths = fetchAllFiles("./DropsuiteTest");
     $ignored = ['.DS_Store'];
     $files = [];
@@ -27,8 +29,6 @@ function showDuplicate(){
         }
 
         $files[] = [
-            "size" => filesize($filepath),
-            "name" => basename($filepath),
             "path" => $filepath,
             "md5"  => md5_file($filepath),
         ];
@@ -44,14 +44,14 @@ function showDuplicate(){
             continue;
         }
 
-        // get all files with current size
+        // get all files with current md5
         $arr = array_filter($files, function($ar) use($md5) {
             return ($ar['md5'] == $md5);
         });
 
         // prevent double assign
         if(!isset($duplicated_by_content[$md5])){
-            $duplicated_by_content[$md5] = $arr;
+            $duplicated_by_content[$md5] = array_values($arr);
         }
     }
 
@@ -70,10 +70,9 @@ function showDuplicate(){
 
         // get the file content
         $file = $group[0];
-        $content = file_get_contents($file['path']);
-
-        // string limit for content result
-        $content = strlen($content) > 50 ? substr($content,0,50)."..." : $content;
+        $handle = fopen($file['path'], 'r');
+        $content = fread($handle, 10);
+        fclose($handle);
 
         // concat the result
         $result =  $content.' '.$count;
